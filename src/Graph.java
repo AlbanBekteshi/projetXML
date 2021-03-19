@@ -13,6 +13,8 @@ public class Graph {
 	
 	private Map<String, Country> correspondanceCca3Country;
 	private Map<Country,ArrayList<Route>> outputRoutes;
+	private ArrayDeque<Country> file = new ArrayDeque<>();
+	ArrayList<String> visite = new ArrayList<>();
 	
 	public Graph() {
 		correspondanceCca3Country = new HashMap<String, Country>();
@@ -20,10 +22,10 @@ public class Graph {
 	}
 	
 	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
-		ArrayList<String> vister = new ArrayList<>();
-		ArrayDeque<Country> file = new ArrayDeque<>();
+		
+		
 		Map<String,String> trajet = new HashMap<String, String>();
-		vister.add(cca3Depart);
+		visite.add(cca3Depart);
 		Country depart = correspondanceCca3Country.get(cca3Depart);
 		ArrayList<Route>borders = outputRoutes.get(depart);
 		
@@ -31,6 +33,10 @@ public class Graph {
 			file.add(b.getStart());
 			trajet.put(cca3Depart, b.getStart().getCca3());
 		}
+	}
+	
+	private void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart) {
+		
 	}
 	
 	
