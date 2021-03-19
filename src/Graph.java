@@ -21,12 +21,16 @@ public class Graph {
 	
 	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		ArrayList<String> vister = new ArrayList<>();
-		ArrayList<Route> file = new ArrayList<>();
-		Map<String,Route> trajet = new HashMap<String, Route>();
+		ArrayDeque<Country> file = new ArrayDeque<>();
+		Map<String,String> trajet = new HashMap<String, String>();
 		vister.add(cca3Depart);
 		Country depart = correspondanceCca3Country.get(cca3Depart);
-		file =outputRoutes.get(depart);
-		trajet.put(vister.get(0), file.get(0));
+		ArrayList<Route>borders = outputRoutes.get(depart);
+		
+		for(Route b : borders) {
+			file.add(b.getStart());
+			trajet.put(cca3Depart, b.getStart().getCca3());
+		}
 	}
 	
 	
