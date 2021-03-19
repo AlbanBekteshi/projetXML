@@ -1,62 +1,35 @@
+import java.awt.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 public class Country {
 	
 	private String name;
-	private String capital;
 	private String cca3;
-	private String currency;
-	private String languages;
-	private String latlng;
 	private int population;
-	private String region;
-	private String subregion;
 	
-	public Country(String name, String capital, String cca3, String currency, String languages, String latlng, int population, String region, String subregion) {
+	public Country(String name, String cca3, int population) {
 		this.name = name;
-		this.capital = capital;
 		this.cca3 = cca3;
-		this.currency = currency;
-		this.languages = languages;
-		this.latlng = latlng;
 		this.population = population;
-		this.region = region;
-		this.subregion = subregion;
 	}
-
+	
 	public String getName() {
 		return name;
-	}
-
-	public String getCapital() {
-		return capital;
 	}
 
 	public String getCca3() {
 		return cca3;
 	}
 
-	public String getCurrency() {
-		return currency;
-	}
-
-	public String getLanguages() {
-		return languages;
-	}
-
-	public String getLatlng() {
-		return latlng;
-	}
-
 	public int getPopulation() {
 		return population;
 	}
 
-	public String getRegion() {
-		return region;
-	}
 
-	public String getSubregion() {
-		return subregion;
+	@Override
+	public String toString() {
+		return "Country [name=" + name + ", cca3=" + cca3 + ", population=" + population + "]";
 	}
 
 	@Override
@@ -64,6 +37,8 @@ public class Country {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((cca3 == null) ? 0 : cca3.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + population;
 		return result;
 	}
 
@@ -81,14 +56,14 @@ public class Country {
 				return false;
 		} else if (!cca3.equals(other.cca3))
 			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (population != other.population)
+			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Country [name=" + name + ", capital=" + capital + ", cca3=" + cca3 + ", currency=" + currency
-				+ ", languages=" + languages + ", latlng=" + latlng + ", population=" + population + ", region="
-				+ region + ", subregion=" + subregion + "]";
 	}
 	
 	

@@ -1,44 +1,44 @@
-
+import org.xml.sax.Attributes;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class SAXHandler extends DefaultHandler {
-	
-	private Graph graph;
-	
-	@Override
-	public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
-		// TODO Auto-generated method stub
-		super.characters(arg0, arg1, arg2);
-	}
 
-	@Override
-	public void endDocument() throws SAXException {
-		// TODO Auto-generated method stub
-		super.endDocument();
-	}
+    private Graph graph;
+    private Country country;
+    private Route route;
+    private boolean border;
 
-	@Override
-	public void endElement(String arg0, String arg1, String arg2) throws SAXException {
-		// TODO Auto-generated method stub
-		super.endElement(arg0, arg1, arg2);
-	}
+    @Override
+    public void startDocument() throws SAXException {
+        graph = new Graph();
+    }
 
-	@Override
-	public void startDocument() throws SAXException {
-		// TODO Auto-generated method stub
-		super.startDocument();
-	}
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        if(qName.equalsIgnoreCase("country")) {
+            country = new Country(attributes.getValue("name"), attributes.getValue("cca3"), Integer.parseInt(attributes.getValue("population")));
+            graph.ajouterSommet(country, country.getCca3());
+        }
+        if(qName.equalsIgnoreCase("border")) {
+        	border = true;
+        }
+    }
 
-	@Override
-	public void startElement(String arg0, String arg1, String arg2, Attributes arg3) throws SAXException {
-		// TODO Auto-generated method stub
-		super.startElement(arg0, arg1, arg2, arg3);
-	}
-	
-	public Graph getGraph() {
-		return graph;
-	}
-	
-	
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        if(border) {
+        	//méthode pour ajouter un border
+        	route = new Route(country, new String(ch, start, length));
+        	graph.ajouterArc(route);
+        	border = false;
+        }
+    }
+
+
+    public Graph getGraph() {
+        return graph;
+    }
+
+
 }

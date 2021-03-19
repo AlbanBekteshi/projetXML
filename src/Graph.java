@@ -16,30 +16,16 @@ public class Graph {
 	
 	public Graph() {
 		correspondanceCca3Country = new HashMap<String, Country>();
+		outputRoutes = new HashMap<Country,Set<Route>>();
 	}
 	
-	public void constructFromXML (String xmlFile) throws Exception {
+	/*public void constructFromXML (String xmlFile) throws Exception {
 		File xml = new File(xmlFile);
 		DocumentBuilderFactory docBuildFact = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuild = docBuildFact.newDocumentBuilder();
 		Document doc = docBuild.parse(xml);
 		NodeList countries = doc.getElementsByTagName("country");
-		for(int i=0; i<countries.getLength(); i++) {
-			Node country = countries.item(i);
-			Element elCountry = (Element) country;
-			String name = elCountry.getAttribute("name");
-			String capital = elCountry.getAttribute("capital");
-			String cca3 = elCountry.getAttribute("cca3");
-			String currency = elCountry.getAttribute("currency");
-			String languages = elCountry.getAttribute("languages");
-			String latlng = elCountry.getAttribute("latlng");
-			int population = Integer.parseInt(elCountry.getAttribute("population"));
-			String region = elCountry.getAttribute("region");
-			String subregion = elCountry.getAttribute("subregion");
-			Country c = new Country(name, capital, cca3, currency, languages, latlng, population, region, subregion);
-			correspondanceCca3Country.put(cca3, c);
-			ajouterSommet(c);
-		}
+		
 		for(int i=0; i<countries.getLength(); i++) {
 			Node country = countries.item(i);
 			Element elCountry = (Element) country;
@@ -49,11 +35,11 @@ public class Graph {
 				Node route = routes.item(j);
 				Element elRoute = (Element) route;
 				String finish = elRoute.getTextContent();
-				Route r = new Route(correspondanceCca3Country.get(cca3), correspondanceCca3Country.get(finish));
+				Route r = new Route(correspondanceCca3Country.get(cca3), correspondanceCca3Country.get(finish).getCca3());
 				ajouterArc(r);
 			}
 		}
-	}
+	}*/
 	
 	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		
@@ -71,9 +57,9 @@ public class Graph {
 	
 	
 	
-	public void ajouterSommet(Country c) {
+	public void ajouterSommet(Country c, String cca3) {
+		correspondanceCca3Country.put(cca3, c);
 		outputRoutes.put(c, new HashSet<Route>());
-
 	}
 	
 	public void ajouterArc(Route r) {
