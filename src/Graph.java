@@ -3,11 +3,17 @@ import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 
 public class Graph {
 	
@@ -33,6 +39,9 @@ public class Graph {
 			file.add(b.getStart());
 			trajet.put(cca3Depart, b.getStart().getCca3());
 		}
+		
+		
+		createFile(fichierDestination);
 	}
 	
 	private void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart) {
@@ -79,5 +88,42 @@ public class Graph {
 			}
 		}
 		return false;
+	}
+	
+	private void createFile(String pathName) {
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.newDocument();
+			
+			Element rootElement = doc.createElement("itinéraire");
+			doc.appendChild(rootElement);
+			Attr arrivee = doc.createAttribute("arrivee");
+			rootElement.setAttributeNode(arrivee);
+			Attr depart = doc.createAttribute("depart");
+			rootElement.setAttributeNode(depart);
+			Attr nbPays = doc.createAttribute("nbPays");
+			rootElement.setAttributeNode(nbPays);
+			Attr sommePopulation = doc.createAttribute("sommePopulation");
+			rootElement.setAttributeNode(sommePopulation);
+			
+			Element pays = doc.createElement("pays");
+			rootElement.appendChild(pays);
+			Attr cca3 = doc.createAttribute("cca3");
+			pays.setAttributeNode(cca3);
+			Attr nom = doc.createAttribute("nom");
+			pays.setAttributeNode(nom);
+			Attr population = doc.createAttribute("population");
+			pays.setAttributeNode(population);
+			
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new File(pathName));
+			transformer.transform(source, result);
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
