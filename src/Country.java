@@ -6,9 +6,9 @@ public class Country {
 	
 	private String name;
 	private String cca3;
-	private int population;
+	private long population;
 	
-	public Country(String name, String cca3, int population) {
+	public Country(String name, String cca3, long population) {
 		this.name = name;
 		this.cca3 = cca3;
 		this.population = population;
@@ -22,7 +22,7 @@ public class Country {
 		return cca3;
 	}
 
-	public int getPopulation() {
+	public long getPopulation() {
 		return population;
 	}
 
@@ -38,7 +38,7 @@ public class Country {
 		int result = 1;
 		result = prime * result + ((cca3 == null) ? 0 : cca3.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + population;
+		result = prime * result + (int) (population ^ (population >>> 32));
 		return result;
 	}
 
@@ -65,6 +65,8 @@ public class Country {
 			return false;
 		return true;
 	}
+
+	
 	
 	
 }

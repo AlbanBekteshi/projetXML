@@ -17,20 +17,20 @@ import org.w3c.dom.NodeList;
 
 public class Graph {
 	
-	private Map<String, Country> correspondanceCca3Country;
+	private HashMap<String, Country> correspondanceCca3Country;
 	private Map<Country,ArrayList<Route>> outputRoutes;
 	private ArrayDeque<Country> file = new ArrayDeque<>();
 	ArrayList<String> visite = new ArrayList<>();
 	
 	public Graph() {
-		correspondanceCca3Country = new HashMap<String, Country>();
-		outputRoutes = new HashMap<Country,ArrayList<Route>>();
+		correspondanceCca3Country = new HashMap<>();
+		outputRoutes = new HashMap<>();
 	}
 	
 	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		
 		
-		Map<String,String> trajet = new HashMap<String, String>();
+		/*Map<String,String> trajet = new HashMap<String, String>();
 		visite.add(cca3Depart);
 		Country depart = correspondanceCca3Country.get(cca3Depart);
 		ArrayList<Route>borders = outputRoutes.get(depart);
@@ -38,10 +38,10 @@ public class Graph {
 		for(Route b : borders) {
 			file.add(b.getStart());
 			trajet.put(cca3Depart, b.getStart().getCca3());
-		}
+		}*/
 		
 		
-		createFile(fichierDestination);
+		//createFile(fichierDestination, cca3Depart, cca3Arrivee,/*Une linkedList à implémenter*/);
 	}
 	
 	private void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart) {
@@ -90,31 +90,53 @@ public class Graph {
 		return false;
 	}
 	
-	private void createFile(String pathName) {
+	private void createFile(String pathName, String origin, String destination, LinkedList<Country> countries) {
+		
+		//Long longtest;
+		Country country;
+		//syntaxe :: bonne ? Vu sur stackoverflow, reduce sert à rétrécir façon d'écrire l'appel de Long.sum et Country.getPop
+		//stream sert à appliquer la méthode sur chaque pays
+		long sommePop = countries.stream().map(Country::getPopulation).reduce(Long::sum).orElse((long) 0);
+		
+		
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.newDocument();
 			
+			//création itinéraire
 			Element rootElement = doc.createElement("itinéraire");
 			doc.appendChild(rootElement);
+			
 			Attr arrivee = doc.createAttribute("arrivee");
+			arrivee.setValue(this.correspondanceCca3Country.get(destination).getName());
 			rootElement.setAttributeNode(arrivee);
 			Attr depart = doc.createAttribute("depart");
+			depart.setValue(this.correspondanceCca3Country.get(origin).getName());
 			rootElement.setAttributeNode(depart);
 			Attr nbPays = doc.createAttribute("nbPays");
+			nbPays.setValue(String.valueOf(countries.size()));
 			rootElement.setAttributeNode(nbPays);
 			Attr sommePopulation = doc.createAttribute("sommePopulation");
+			sommePopulation.setValue(String.valueOf(sommePop));
 			rootElement.setAttributeNode(sommePopulation);
 			
-			Element pays = doc.createElement("pays");
-			rootElement.appendChild(pays);
-			Attr cca3 = doc.createAttribute("cca3");
-			pays.setAttributeNode(cca3);
-			Attr nom = doc.createAttribute("nom");
-			pays.setAttributeNode(nom);
-			Attr population = doc.createAttribute("population");
-			pays.setAttributeNode(population);
+			//création pays
+			while(countries.size() > 0) {
+				country = countries.poll();
+				Element pays = doc.createElement("pays");
+				rootElement.appendChild(pays);
+				
+				Attr cca3 = doc.createAttribute("cca3");
+				cca3.setValue(country.getCca3());
+				pays.setAttributeNode(cca3);
+				Attr nom = doc.createAttribute("nom");
+				nom.setValue(country.getName());
+				pays.setAttributeNode(nom);
+				Attr population = doc.createAttribute("population");
+				population.setValue(String.valueOf(country.getPopulation()));
+				pays.setAttributeNode(population);
+			}
 			
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
