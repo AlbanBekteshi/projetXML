@@ -44,13 +44,8 @@ public class Graph {
 		//createFile(fichierDestination, cca3Depart, cca3Arrivee,/*Une linkedList à implémenter*/);
 	}
 	
-	private void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart) {
-		
-	}
-	
-	
 	public void calculerItineraireMinimisantPopulationTotale(String cca3Depart, String cca3Arrivee, String fichierDestination) {
-		
+		//djikastra
 	}
 	
 	
@@ -92,11 +87,8 @@ public class Graph {
 	
 	private void createFile(String pathName, String origin, String destination, LinkedList<Country> countries) {
 		
-		//Long longtest;
 		Country country;
-		//syntaxe :: bonne ? Vu sur stackoverflow, reduce sert à rétrécir façon d'écrire l'appel de Long.sum et Country.getPop
-		//stream sert à appliquer la méthode sur chaque pays
-		long sommePop = countries.stream().map(Country::getPopulation).reduce(Long::sum).orElse((long) 0);
+		long sommePop = countries.stream().map((item) -> item.getPopulation()).reduce((a,b)->Long.sum(a, b)).orElse((long) 0);
 		
 		
 		try {
