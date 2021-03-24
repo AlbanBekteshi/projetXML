@@ -19,19 +19,22 @@ public class Graph {
 	
 	private HashMap<String, Country> correspondanceCca3Country;
 	private Map<Country,ArrayList<Route>> outputRoutes;
-	private ArrayDeque<Country> file = new ArrayDeque<>();
-	ArrayList<String> visite = new ArrayList<>();
+	//private ArrayDeque<Country> file = new ArrayDeque<>();
+	//ArrayList<String> visite = new ArrayList<>();	
 	
 	public Graph() {
 		correspondanceCca3Country = new HashMap<>();
 		outputRoutes = new HashMap<>();
 	}
 	
+	// BFS doit être fait avec une HashMap
 	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		
+		//clé = sommet, valeur = sommet depuis lequel on est arrivé OU si info sur la map valeur = l'arc de par ou on vient
+		Map<String,String> trajet = new HashMap<>();
 		
-		/*Map<String,String> trajet = new HashMap<String, String>();
-		visite.add(cca3Depart);
+		
+		/*visite.add(cca3Depart);
 		Country depart = correspondanceCca3Country.get(cca3Depart);
 		ArrayList<Route>borders = outputRoutes.get(depart);
 		
@@ -39,6 +42,22 @@ public class Graph {
 			file.add(b.getStart());
 			trajet.put(cca3Depart, b.getStart().getCca3());
 		}*/
+		
+		/******TEST**********/
+		
+		//définir le payse de départ
+		boolean arrived = false;
+		//on enlève le pays de départ de la hashmap et on le sauvegarde dans une linkedlist
+		while(!arrived) {
+			//pour chaque border du pays de départ (utiliser foreach de border ou autre)
+				//si on n'est pas encore passé par ce pays border
+					//on avance dans ce pays
+					//on ajoute ce pays à la linkedlist
+					//on ajoute ce pays à la hashmap
+					//si le border dans lequel on est est égal au pays ou l'on veut aller
+						arrived = true;
+						//on renvoie la linkedlist
+		}
 		
 		
 		//createFile(fichierDestination, cca3Depart, cca3Arrivee,/*Une linkedList à implémenter*/);
@@ -89,7 +108,6 @@ public class Graph {
 		
 		Country country;
 		long sommePop = countries.stream().map((item) -> item.getPopulation()).reduce((a,b)->Long.sum(a, b)).orElse((long) 0);
-		
 		
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
