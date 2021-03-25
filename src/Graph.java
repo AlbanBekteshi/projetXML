@@ -19,49 +19,109 @@ public class Graph {
 	
 	private HashMap<String, Country> correspondanceCca3Country;
 	private Map<Country,ArrayList<Route>> outputRoutes;
-	//private ArrayDeque<Country> file = new ArrayDeque<>();
-	//ArrayList<String> visite = new ArrayList<>();	
+//	private ArrayDeque<Country> file = new ArrayDeque<>();
+//	private ArrayList<String> visites = new ArrayList<>();	
+//	private HashMap<String, String> trajet = new HashMap<String,String>();
 	
 	public Graph() {
 		correspondanceCca3Country = new HashMap<>();
 		outputRoutes = new HashMap<>();
 	}
 	
-	// BFS doit être fait avec une HashMap
-	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
-		
-		//clé = sommet, valeur = sommet depuis lequel on est arrivé OU si info sur la map valeur = l'arc de par ou on vient
-		Map<String,String> trajet = new HashMap<>();
-		
-		
-		/*visite.add(cca3Depart);
+	
+	private Deque<Route> bfs (String cca3Depart,String cca3Arrive){
 		Country depart = correspondanceCca3Country.get(cca3Depart);
-		ArrayList<Route>borders = outputRoutes.get(depart);
+		Country arrive = correspondanceCca3Country.get(cca3Arrive);
 		
-		for(Route b : borders) {
-			file.add(b.getStart());
-			trajet.put(cca3Depart, b.getStart().getCca3());
-		}*/
+		Deque<Country> queue = new ArrayDeque<Country>();
+		Set<Country> visites = new HashSet<Country>();
+		Map<Country,Route> chemins = new HashMap<Country, Route>();
+		ArrayList<Route> frontieres = outputRoutes.get(depart);
 		
-		/******TEST**********/
-		
-		//définir le payse de départ
-		boolean arrived = false;
-		//on enlève le pays de départ de la hashmap et on le sauvegarde dans une linkedlist
-		while(!arrived) {
-			//pour chaque border du pays de départ (utiliser foreach de border ou autre)
-				//si on n'est pas encore passé par ce pays border
-					//on avance dans ce pays
-					//on ajoute ce pays à la linkedlist
-					//on ajoute ce pays à la hashmap
-					//si le border dans lequel on est est égal au pays ou l'on veut aller
-						arrived = true;
-						//on renvoie la linkedlist
+		for (int i =0 ; i<frontieres.size();i++) {
+			String payscca3 = frontieres.get(i).getFinish();
+			queue.add(correspondanceCca3Country.get(payscca3));
 		}
 		
 		
-		//createFile(fichierDestination, cca3Depart, cca3Arrivee,/*Une linkedList à implémenter*/);
+		visites.add(depart);
+		Country position = depart;
+		System.out.println(position);
+		
+		while (!position.equals(arrive) && !queue.isEmpty()) {
+			position = queue.remove();
+			ArrayList<Route> routes = outputRoutes.get(position);
+			if (routes != null) {
+				for (Route route :routes) {
+					
+					Country frontalier = correspondanceCca3Country.get(route.getFinish());
+					if(!visites.contains(frontalier)) {
+						queue.add(frontalier);
+						visites.add(frontalier);
+						chemins.putIfAbsent(frontalier, route);
+					}
+				}
+			}
+		}
+		depart = arrive;
+		Deque<Route> routes = new ArrayDeque<Route>();
+		Route route;
+		while ((route = chemins.get(depart))!=null) {
+			routes.addFirst(route);
+			depart = route.getStart();
+		}
+		return routes;
 	}
+	
+	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
+		Deque<Route> chemins = bfs(cca3Depart, cca3Arrivee);
+	}
+	// BFS doit être fait avec une HashMap
+//	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
+//		
+//		//clé = sommet, valeur = sommet depuis lequel on est arrivé OU si info sur la map valeur = l'arc de par ou on vient
+//		//Map<String,String> trajet = new HashMap<>();
+//		
+//		
+//		visites.add(cca3Depart);
+//		Country depart = correspondanceCca3Country.get(cca3Depart);
+//		ArrayList<Route> frontieres = outputRoutes.get(depart);
+//		
+//		for (int i =0 ; i<frontieres.size();i++) {
+//			String payscca3 = frontieres.get(i).getFinish();
+//			file.add(correspondanceCca3Country.get(payscca3));
+//		}
+//		
+//		for (int i = 0; i<file.size();i++) {
+//			
+//		}
+//		
+//		/*Country depart = correspondanceCca3Country.get(cca3Depart);
+//		ArrayList<Route>borders = outputRoutes.get(depart);
+//		
+//		for(Route b : borders) {
+//			file.add(b.getStart());
+//			trajet.put(cca3Depart, b.getStart().getCca3());
+//		}*/
+//		
+//		/******TEST**********/
+//		
+//		//définir le payse de départ
+//		boolean arrived = false;
+//		//on enlève le pays de départ de la hashmap et on le sauvegarde dans une linkedlist
+//		while(!arrived) {
+//			//pour chaque border du pays de départ (utiliser foreach de border ou autre)
+//				//si on n'est pas encore passé par ce pays border
+//					//on avance dans ce pays
+//					//on ajoute ce pays à la linkedlist
+//					//on ajoute ce pays à la hashmap
+//					//si le border dans lequel on est est égal au pays ou l'on veut aller
+//						arrived = true;
+//						//on renvoie la linkedlist
+//		}
+//		//createFile(fichierDestination, cca3Depart, cca3Arrivee,/*Une linkedList à implémenter*/);
+//	}
+//	
 	
 	public void calculerItineraireMinimisantPopulationTotale(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		//djikastra
