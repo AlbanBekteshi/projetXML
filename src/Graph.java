@@ -19,9 +19,6 @@ public class Graph {
 	
 	private HashMap<String, Country> correspondanceCca3Country;
 	private Map<Country,ArrayList<Route>> outputRoutes;
-//	private ArrayDeque<Country> file = new ArrayDeque<>();
-//	private ArrayList<String> visites = new ArrayList<>();	
-//	private HashMap<String, String> trajet = new HashMap<String,String>();
 	
 	public Graph() {
 		correspondanceCca3Country = new HashMap<>();
@@ -29,99 +26,15 @@ public class Graph {
 	}
 	
 	
-	private Deque<Route> bfs (String cca3Depart,String cca3Arrive){
-		Country depart = correspondanceCca3Country.get(cca3Depart);
-		Country arrive = correspondanceCca3Country.get(cca3Arrive);
-		
-		Deque<Country> queue = new ArrayDeque<Country>();
-		Set<Country> visites = new HashSet<Country>();
-		Map<Country,Route> chemins = new HashMap<Country, Route>();
-		ArrayList<Route> frontieres = outputRoutes.get(depart);
-		
-		for (int i =0 ; i<frontieres.size();i++) {
-			String payscca3 = frontieres.get(i).getFinish();
-			queue.add(correspondanceCca3Country.get(payscca3));
-		}
-		
-		
-		visites.add(depart);
-		Country position = depart;
-		System.out.println(position);
-		
-		while (!position.equals(arrive) && !queue.isEmpty()) {
-			position = queue.remove();
-			ArrayList<Route> routes = outputRoutes.get(position);
-			if (routes != null) {
-				for (Route route :routes) {
-					
-					Country frontalier = correspondanceCca3Country.get(route.getFinish());
-					if(!visites.contains(frontalier)) {
-						queue.add(frontalier);
-						visites.add(frontalier);
-						chemins.putIfAbsent(frontalier, route);
-					}
-				}
-			}
-		}
-		depart = arrive;
-		Deque<Route> routes = new ArrayDeque<Route>();
-		Route route;
-		while ((route = chemins.get(depart))!=null) {
-			routes.addFirst(route);
-			depart = route.getStart();
-		}
-		return routes;
-	}
+	
 	
 	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		Deque<Route> chemins = bfs(cca3Depart, cca3Arrivee);
+		createFile(fichierDestination, cca3Depart, cca3Arrivee, chemins);
 	}
-	// BFS doit être fait avec une HashMap
-//	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
-//		
-//		//clé = sommet, valeur = sommet depuis lequel on est arrivé OU si info sur la map valeur = l'arc de par ou on vient
-//		//Map<String,String> trajet = new HashMap<>();
-//		
-//		
-//		visites.add(cca3Depart);
-//		Country depart = correspondanceCca3Country.get(cca3Depart);
-//		ArrayList<Route> frontieres = outputRoutes.get(depart);
-//		
-//		for (int i =0 ; i<frontieres.size();i++) {
-//			String payscca3 = frontieres.get(i).getFinish();
-//			file.add(correspondanceCca3Country.get(payscca3));
-//		}
-//		
-//		for (int i = 0; i<file.size();i++) {
-//			
-//		}
-//		
-//		/*Country depart = correspondanceCca3Country.get(cca3Depart);
-//		ArrayList<Route>borders = outputRoutes.get(depart);
-//		
-//		for(Route b : borders) {
-//			file.add(b.getStart());
-//			trajet.put(cca3Depart, b.getStart().getCca3());
-//		}*/
-//		
-//		/******TEST**********/
-//		
-//		//définir le payse de départ
-//		boolean arrived = false;
-//		//on enlève le pays de départ de la hashmap et on le sauvegarde dans une linkedlist
-//		while(!arrived) {
-//			//pour chaque border du pays de départ (utiliser foreach de border ou autre)
-//				//si on n'est pas encore passé par ce pays border
-//					//on avance dans ce pays
-//					//on ajoute ce pays à la linkedlist
-//					//on ajoute ce pays à la hashmap
-//					//si le border dans lequel on est est égal au pays ou l'on veut aller
-//						arrived = true;
-//						//on renvoie la linkedlist
-//		}
-//		//createFile(fichierDestination, cca3Depart, cca3Arrivee,/*Une linkedList à implémenter*/);
-//	}
-//	
+
+
+
 	
 	public void calculerItineraireMinimisantPopulationTotale(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		//djikastra
@@ -164,18 +77,57 @@ public class Graph {
 		return false;
 	}
 	
-	private void createFile(String pathName, String origin, String destination, LinkedList<Country> countries) {
+	private Deque<Route> bfs (String cca3Depart,String cca3Arrive){
+		Country depart = correspondanceCca3Country.get(cca3Depart);
+		Country arrive = correspondanceCca3Country.get(cca3Arrive);
+		
+		Deque<Country> queue = new ArrayDeque<Country>();
+		Set<Country> visites = new HashSet<Country>();
+		Map<Country,Route> chemins = new HashMap<Country, Route>();
+		
+		visites.add(depart);
+		queue.add(depart);
+		System.out.println(depart);
+		
+		while (!depart.equals(arrive) && !queue.isEmpty()) {
+			depart = queue.remove();
+			ArrayList<Route> routes = outputRoutes.get(depart);
+			if (routes != null) {
+				for (Route route :routes) {
+					
+					Country frontalier = correspondanceCca3Country.get(route.getFinish());
+					if(!visites.contains(frontalier)) {
+						queue.add(frontalier);
+						visites.add(frontalier);
+						chemins.putIfAbsent(frontalier, route);
+					}
+				}
+			}
+		}
+		depart = arrive;
+		Deque<Route> routes = new ArrayDeque<Route>();
+		Route route;
+		while ((route = chemins.get(depart))!=null) {
+			routes.addFirst(route);
+			depart = route.getStart();
+		}
+		Route lastRoute = new Route(arrive, cca3Depart);
+		routes.add(lastRoute);
+		return routes;
+	}
+	
+	private void createFile(String pathName, String origin, String destination, Deque<Route> routes) {
 		
 		Country country;
-		long sommePop = countries.stream().map((item) -> item.getPopulation()).reduce((a,b)->Long.sum(a, b)).orElse((long) 0);
+		long sommePop = routes.stream().map((item)-> item.getStart().getPopulation()).reduce((a, b)->Long.sum(a, b)).orElse((long)0);
 		
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.newDocument();
 			
-			//création itinéraire
-			Element rootElement = doc.createElement("itinéraire");
+			//creation itineraire
+			Element rootElement = doc.createElement("itineraire");
 			doc.appendChild(rootElement);
 			
 			Attr arrivee = doc.createAttribute("arrivee");
@@ -185,15 +137,15 @@ public class Graph {
 			depart.setValue(this.correspondanceCca3Country.get(origin).getName());
 			rootElement.setAttributeNode(depart);
 			Attr nbPays = doc.createAttribute("nbPays");
-			nbPays.setValue(String.valueOf(countries.size()));
+			nbPays.setValue(String.valueOf(routes.size()));
 			rootElement.setAttributeNode(nbPays);
 			Attr sommePopulation = doc.createAttribute("sommePopulation");
 			sommePopulation.setValue(String.valueOf(sommePop));
 			rootElement.setAttributeNode(sommePopulation);
 			
-			//création pays
-			while(countries.size() > 0) {
-				country = countries.poll();
+			//creation pays
+			while(routes.size() > 0) {
+				country = routes.remove().getStart();
 				Element pays = doc.createElement("pays");
 				rootElement.appendChild(pays);
 				
