@@ -26,33 +26,19 @@ public class Graph {
 		outputRoutes = new HashMap<>();
 	}
 	
-	
-	
-	
 	public void calculerItineraireMinimisantNombreDeFrontieres(String cca3Depart, String cca3Arrivee, String fichierDestination) {
-		Deque<Route> chemins = bfs(cca3Depart, cca3Arrivee);
-		createFile(fichierDestination, cca3Depart, cca3Arrivee, chemins);
+		Deque<Route> trajet = bfs(cca3Depart, cca3Arrivee);
+		createFile(fichierDestination, cca3Depart, cca3Arrivee, trajet);
 	}
 
-
-
-	
 	public void calculerItineraireMinimisantPopulationTotale(String cca3Depart, String cca3Arrivee, String fichierDestination) {
-		//djikastra
-		
-		Deque<Route> route = djikistra(cca3Depart,cca3Arrivee);
-		createFile(fichierDestination, cca3Depart, cca3Arrivee, route);
-		
-		
+		Deque<Route> trajet = dijkstra(cca3Depart,cca3Arrivee);
+		createFile(fichierDestination, cca3Depart, cca3Arrivee, trajet);
 	}
-	
-	
 	
 	public Country getCountry(String cca3) {
 		return correspondanceCca3Country.get(cca3);
-	}
-	
-	
+	}	
 	
 	public void ajouterSommet(Country c, String cca3) {
 		correspondanceCca3Country.put(cca3, c);
@@ -63,154 +49,90 @@ public class Graph {
 		outputRoutes.get(r.getStart()).add(r);
 	}
 	
-	public ArrayList<Route> arcsSortants(Country c) {
-		return outputRoutes.get(c);
-	}
 	
-	public boolean sontAdjacents(Country c1, Country c2) {
-		ArrayList<Route> routes = outputRoutes.get(c1);
-		for(Route route : routes) {
-			if(route.getFinish().equals(c2)) {
-				return true;
-			}
-		}
-		routes = outputRoutes.get(c2);
-		for(Route route : routes) {
-			if(route.getFinish().equals(c1)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private Deque<Route> djikistra(String cca3Depart,String cca3Arrive){
+	private Deque<Route> dijkstra(String cca3Depart,String cca3Arrivee){
 		Map<Country, Long> provisoire = new HashMap<>();
 		Map<Country, Long> finale = new HashMap<>();
-		Map<Country,Country> parents= new HashMap<>();
-		Deque<Route> queue = new ArrayDeque<Route>();
-		Country depart = correspondanceCca3Country.get(cca3Depart);
-		Country arrive = correspondanceCca3Country.get(cca3Arrive);
+		Map<Country,Country> parents = new HashMap<>();
+		Country depart = getCountry(cca3Depart);
+		Country arrivee = getCountry(cca3Arrivee);
 		
-		
-		
-		provisoire.put(depart, 0L);
+		finale.put(depart, depart.getPopulation());
+		provisoire.put(depart, depart.getPopulation());
 		parents.put(depart, null);
-		while(!finale.containsKey(arrive)) {
-			
+		
+		while(!depart.getCca3().equals(cca3Arrivee)) {
 			long min = Long.MAX_VALUE;
-			Country paysMin=depart;
-			for(Route r : outputRoutes.get(paysMin)) {
-				Country country = correspondanceCca3Country.get(r.getFinish());
+			Country paysMin = depart;
+			for(Route route : outputRoutes.get(paysMin)) {
+				Country country = getCountry(route.getFinish());
 				if(!finale.containsKey(country)) {
 					if(provisoire.containsKey(country)) {
-						if(provisoire.get(country) > country.getPopulation() + r.getStart().getPopulation()) {
-							provisoire.put(country, country.getPopulation() + r.getStart().getPopulation());
-							parents.put(depart, country);
+						if(provisoire.get(country) > country.getPopulation() + provisoire.get(paysMin)) {
+							provisoire.put(country, country.getPopulation() + provisoire.get(paysMin));
+							parents.put(country, depart);
 						}
 					}else {
-						provisoire.put(country, country.getPopulation() + r.getStart().getPopulation());
-						parents.put(depart, country);
+						provisoire.put(country, country.getPopulation() + provisoire.get(paysMin));
+						parents.put(country, depart);
 					}
 				}
 			}
-			
+		
+			provisoire.remove(paysMin);
 			for (Map.Entry<Country, Long> mapentry : provisoire.entrySet()) {
 				if(mapentry.getValue()<min) {
 					min = mapentry.getValue();
 					paysMin = mapentry.getKey();		
 				}
 			}
-
-			
 			finale.put(paysMin, min + depart.getPopulation());
-			provisoire.remove(paysMin);
-			
-			depart= paysMin;
-			
-			
-			
-			
-			/*ArrayList<Route> frontieres = outputRoutes.get(paysMin);
-			for (Route route : frontieres){
-				//if route pas dans finale
-				Country paysVoisin = correspondanceCca3Country.get(route.getFinish());
-				//faire les verifs
-				if(!provisoire.containsKey(paysVoisin)) {
-					parents.put(paysVoisin, paysMin);
-					provisoire.put(paysVoisin, paysVoisin.getPopulation());	
-				}
-				else {
-					//regarder si chemin plus court depuis le pays ou on se trouve actuellement
-					//if pop pays actuel + pop finale < ce qui est déjà dans somme provisoire
-					long popPaysProv = provisoire.get(paysVoisin);
-					if(paysVoisin.getPopulation()<popPaysProv) {
-						//provisoire.get(paysVoisin).
-					}
-					
-				}
-			}*/
-			
+			depart = paysMin;
 		}
-		
-		/*Country countryFin = arrive;
-		Country countryDepart = parents.get(arrive);
-		while(parents.get(countryFin)!=null){
-			queue.add(new Route(countryDepart,countryFin.getCca3()));
-			countryFin = countryDepart;
-			countryDepart = parents.get(countryFin);
-		}*/
-		for (Map.Entry<Country, Country> mapentry : parents.entrySet()) {
-			System.out.println(mapentry.getKey());
-			System.out.println(mapentry.getValue());
-		}
+
 		Deque<Route> routes = new ArrayDeque<Route>();
 		Country pays;
-		while ((pays = parents.get(arrive))!=null) {
-			System.out.println(pays);
-			routes.addFirst(new Route(pays, arrive.getCca3()));
-			arrive = pays;
-			
+		while ((pays = parents.get(arrivee))!=null) {
+			routes.addFirst(new Route(pays, arrivee.getCca3()));
+			arrivee = pays;	
 		}
-		Route lastRoute = new Route(arrive, cca3Depart);
+		Route lastRoute = new Route(depart, cca3Depart);
 		routes.add(lastRoute);
 		return routes;
 	}
 	
-	private Deque<Route> bfs (String cca3Depart,String cca3Arrive){
-		Country depart = correspondanceCca3Country.get(cca3Depart);
-		Country arrive = correspondanceCca3Country.get(cca3Arrive);
-		
+	private Deque<Route> bfs (String cca3Depart,String cca3Arrivee){
 		Deque<Country> queue = new ArrayDeque<Country>();
 		Set<Country> visites = new HashSet<Country>();
 		Map<Country,Route> chemins = new HashMap<Country, Route>();
+		Country depart = getCountry(cca3Depart);
+		Country arrivee = getCountry(cca3Arrivee);
 		
 		visites.add(depart);
 		queue.add(depart);
-		System.out.println(depart);
 		
-		while (!depart.equals(arrive) && !queue.isEmpty()) {
+		while (!depart.equals(arrivee) && !queue.isEmpty()) {
 			depart = queue.remove();
 			ArrayList<Route> routes = outputRoutes.get(depart);
 			if (routes != null) {
-				for (Route route :routes) {
-					
-					Country frontalier = correspondanceCca3Country.get(route.getFinish());
-					if(!visites.contains(frontalier)) {
-						queue.add(frontalier);
-						visites.add(frontalier);
-						chemins.putIfAbsent(frontalier, route);
+				for (Route route : routes) {
+					Country border = getCountry(route.getFinish());
+					if(!visites.contains(border)) {
+						queue.add(border);
+						visites.add(border);
+						chemins.putIfAbsent(border, route);
 					}
 				}
 			}
 		}
-		depart = arrive;
+		depart = arrivee;
 		Deque<Route> routes = new ArrayDeque<Route>();
 		Route route;
 		while ((route = chemins.get(depart))!=null) {
 			routes.addFirst(route);
 			depart = route.getStart();
 		}
-		Route lastRoute = new Route(arrive, cca3Depart);
+		Route lastRoute = new Route(arrivee, cca3Depart);
 		routes.add(lastRoute);
 		return routes;
 	}
@@ -230,10 +152,10 @@ public class Graph {
 			doc.appendChild(rootElement);
 			
 			Attr arrivee = doc.createAttribute("arrivee");
-			arrivee.setValue(this.correspondanceCca3Country.get(destination).getName());
+			arrivee.setValue(this.getCountry(destination).getName());
 			rootElement.setAttributeNode(arrivee);
 			Attr depart = doc.createAttribute("depart");
-			depart.setValue(this.correspondanceCca3Country.get(origin).getName());
+			depart.setValue(this.getCountry(origin).getName());
 			rootElement.setAttributeNode(depart);
 			Attr nbPays = doc.createAttribute("nbPays");
 			nbPays.setValue(String.valueOf(routes.size()));
