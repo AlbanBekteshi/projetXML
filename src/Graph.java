@@ -1,6 +1,7 @@
 import java.io.File;
 import java.util.*;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -38,6 +39,10 @@ public class Graph {
 	
 	public void calculerItineraireMinimisantPopulationTotale(String cca3Depart, String cca3Arrivee, String fichierDestination) {
 		//djikastra
+		
+		Deque<Route> route = djikistra(cca3Depart,cca3Arrivee);
+		
+		
 	}
 	
 	
@@ -75,6 +80,38 @@ public class Graph {
 			}
 		}
 		return false;
+	}
+	
+	private Deque<Route> djikistra(String cca3Depart,String cca3Arrive){
+		Map<Country, Long> provisoire = new HashMap<>();
+		Map<Country, Long> finale = new HashMap<>();
+		Map<Country,Country> parents= new HashMap<>();
+		Deque<Route> queue = new ArrayDeque<Route>();
+		Country depart = correspondanceCca3Country.get(cca3Depart);
+		Country arrive = correspondanceCca3Country.get(cca3Arrive);
+		
+		
+		
+		provisoire.put(depart, 0L);
+		finale.put(depart, depart.getPopulation());
+		
+		while(!provisoire.isEmpty() && !finale.containsKey(arrive)) {
+			ArrayList<Route> frontieres = outputRoutes.get(depart);
+			long min = Long.MAX_VALUE;
+			Country paysMin=depart;
+			
+			for (Route route : frontieres){
+				Country paysVoisin = correspondanceCca3Country.get(route.getFinish());
+				if(paysVoisin.getPopulation()<min) {
+					min = paysVoisin.getPopulation();
+					paysMin= paysVoisin;
+				}
+			}
+			finale.put(paysMin, min);
+			parents.putIfAbsent(paysMin,depart);
+			depart= paysMin;
+		}
+		return queue;
 	}
 	
 	private Deque<Route> bfs (String cca3Depart,String cca3Arrive){
