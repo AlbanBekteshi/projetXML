@@ -41,6 +41,7 @@ public class Graph {
 		//djikastra
 		
 		Deque<Route> route = djikistra(cca3Depart,cca3Arrivee);
+		createFile(fichierDestination, cca3Depart, cca3Arrivee, route);
 		
 		
 	}
@@ -93,12 +94,25 @@ public class Graph {
 		
 		
 		provisoire.put(depart, 0L);
-		
-		while(!provisoire.isEmpty() && !finale.containsKey(arrive)) {
+		parents.put(depart, null);
+		while(!finale.containsKey(arrive)) {
 			
 			long min = Long.MAX_VALUE;
 			Country paysMin=depart;
-					
+			for(Route r : outputRoutes.get(paysMin)) {
+				Country country = correspondanceCca3Country.get(r.getFinish());
+				if(!finale.containsKey(country)) {
+					if(provisoire.containsKey(country)) {
+						if(provisoire.get(country) > country.getPopulation() + r.getStart().getPopulation()) {
+							provisoire.put(country, country.getPopulation() + r.getStart().getPopulation());
+							parents.put(depart, country);
+						}
+					}else {
+						provisoire.put(country, country.getPopulation() + r.getStart().getPopulation());
+						parents.put(depart, country);
+					}
+				}
+			}
 			
 			for (Map.Entry<Country, Long> mapentry : provisoire.entrySet()) {
 				if(mapentry.getValue()<min) {
@@ -106,15 +120,19 @@ public class Graph {
 					paysMin = mapentry.getKey();		
 				}
 			}
-			//Route route = new Route(paysMin, depart.getCca3());
-			//parents.put(paysMin, route);
-			//pays voisin retien pays min 
+
 			
-			finale.put(paysMin, min);
+			finale.put(paysMin, min + depart.getPopulation());
 			provisoire.remove(paysMin);
 			
-			ArrayList<Route> frontieres = outputRoutes.get(paysMin);
+			depart= paysMin;
+			
+			
+			
+			
+			/*ArrayList<Route> frontieres = outputRoutes.get(paysMin);
 			for (Route route : frontieres){
+				//if route pas dans finale
 				Country paysVoisin = correspondanceCca3Country.get(route.getFinish());
 				//faire les verifs
 				if(!provisoire.containsKey(paysVoisin)) {
@@ -122,20 +140,40 @@ public class Graph {
 					provisoire.put(paysVoisin, paysVoisin.getPopulation());	
 				}
 				else {
+					//regarder si chemin plus court depuis le pays ou on se trouve actuellement
+					//if pop pays actuel + pop finale < ce qui est déjà dans somme provisoire
 					long popPaysProv = provisoire.get(paysVoisin);
 					if(paysVoisin.getPopulation()<popPaysProv) {
 						//provisoire.get(paysVoisin).
 					}
 					
 				}
-			}
-			
-
-			
-			depart= paysMin;
+			}*/
 			
 		}
-		return queue;
+		
+		/*Country countryFin = arrive;
+		Country countryDepart = parents.get(arrive);
+		while(parents.get(countryFin)!=null){
+			queue.add(new Route(countryDepart,countryFin.getCca3()));
+			countryFin = countryDepart;
+			countryDepart = parents.get(countryFin);
+		}*/
+		for (Map.Entry<Country, Country> mapentry : parents.entrySet()) {
+			System.out.println(mapentry.getKey());
+			System.out.println(mapentry.getValue());
+		}
+		Deque<Route> routes = new ArrayDeque<Route>();
+		Country pays;
+		while ((pays = parents.get(arrive))!=null) {
+			System.out.println(pays);
+			routes.addFirst(new Route(pays, arrive.getCca3()));
+			arrive = pays;
+			
+		}
+		Route lastRoute = new Route(arrive, cca3Depart);
+		routes.add(lastRoute);
+		return routes;
 	}
 	
 	private Deque<Route> bfs (String cca3Depart,String cca3Arrive){
