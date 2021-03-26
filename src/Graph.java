@@ -85,7 +85,7 @@ public class Graph {
 	private Deque<Route> djikistra(String cca3Depart,String cca3Arrive){
 		Map<Country, Long> provisoire = new HashMap<>();
 		Map<Country, Long> finale = new HashMap<>();
-		Map<Country,Country> parents= new HashMap<>();
+		Map<Country,Route> parents= new HashMap<>();
 		Deque<Route> queue = new ArrayDeque<Route>();
 		Country depart = correspondanceCca3Country.get(cca3Depart);
 		Country arrive = correspondanceCca3Country.get(cca3Arrive);
@@ -93,23 +93,38 @@ public class Graph {
 		
 		
 		provisoire.put(depart, 0L);
-		finale.put(depart, depart.getPopulation());
 		
 		while(!provisoire.isEmpty() && !finale.containsKey(arrive)) {
-			ArrayList<Route> frontieres = outputRoutes.get(depart);
+			
 			long min = Long.MAX_VALUE;
 			Country paysMin=depart;
+					
 			
-			for (Route route : frontieres){
-				Country paysVoisin = correspondanceCca3Country.get(route.getFinish());
-				if(paysVoisin.getPopulation()<min) {
-					min = paysVoisin.getPopulation();
-					paysMin= paysVoisin;
+			for (Map.Entry<Country, Long> mapentry : provisoire.entrySet()) {
+				if(mapentry.getValue()<min) {
+					min = mapentry.getValue();
+					paysMin = mapentry.getKey();		
 				}
 			}
+			//Route route = new Route(paysMin, depart.getCca3());
+			//parents.put(paysMin, route);
+			//pays voisin retien pays min 
+			
 			finale.put(paysMin, min);
-			parents.putIfAbsent(paysMin,depart);
+			provisoire.remove(paysMin);
+			
+			ArrayList<Route> frontieres = outputRoutes.get(paysMin);
+			for (Route route : frontieres){
+				Country paysVoisin = correspondanceCca3Country.get(route.getFinish());
+				if(!provisoire.containsKey(paysVoisin)) {
+					provisoire.put(paysVoisin, paysVoisin.getPopulation());	
+				}
+			}
+			
+
+			
 			depart= paysMin;
+			
 		}
 		return queue;
 	}
