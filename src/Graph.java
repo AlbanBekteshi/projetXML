@@ -85,7 +85,7 @@ public class Graph {
 	private Deque<Route> djikistra(String cca3Depart,String cca3Arrive){
 		Map<Country, Long> provisoire = new HashMap<>();
 		Map<Country, Long> finale = new HashMap<>();
-		Map<Country,Route> parents= new HashMap<>();
+		Map<Country,Country> parents= new HashMap<>();
 		Deque<Route> queue = new ArrayDeque<Route>();
 		Country depart = correspondanceCca3Country.get(cca3Depart);
 		Country arrive = correspondanceCca3Country.get(cca3Arrive);
@@ -116,8 +116,17 @@ public class Graph {
 			ArrayList<Route> frontieres = outputRoutes.get(paysMin);
 			for (Route route : frontieres){
 				Country paysVoisin = correspondanceCca3Country.get(route.getFinish());
+				//faire les verifs
 				if(!provisoire.containsKey(paysVoisin)) {
+					parents.put(paysVoisin, paysMin);
 					provisoire.put(paysVoisin, paysVoisin.getPopulation());	
+				}
+				else {
+					long popPaysProv = provisoire.get(paysVoisin);
+					if(paysVoisin.getPopulation()<popPaysProv) {
+						//provisoire.get(paysVoisin).
+					}
+					
 				}
 			}
 			
